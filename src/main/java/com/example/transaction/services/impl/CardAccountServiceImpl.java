@@ -6,6 +6,7 @@ import com.example.transaction.models.Balance;
 import com.example.transaction.models.CardAccount;
 import com.example.transaction.models.dtos.AccountNumberAmountDto;
 import com.example.transaction.models.dtos.BalanceDto;
+import com.example.transaction.models.dtos.StatusAccountNumberDto;
 import com.example.transaction.repos.CardAccountRepo;
 import com.example.transaction.services.BalanceService;
 import com.example.transaction.services.CardAccountService;
@@ -46,5 +47,21 @@ public class CardAccountServiceImpl implements CardAccountService {
         balanceService.saveBalance(balance);
 
         return new BalanceDto(balance.getBalance(), balance.getBlockedBalance());
+    }
+
+    @Override
+    public void closeWithdrawal(StatusAccountNumberDto statusAccountNumberDto) {
+        CardAccount cardAccount = cardAccountRepo.findByAccountNumber(statusAccountNumberDto.accountNumber());
+        Balance balance = cardAccount.getBalance();
+
+        if (statusAccountNumberDto.status().equalsIgnoreCase("ok"))
+            balance.setBlockedBalance(balance.getBlockedBalance() - statusAccountNumberDto.amount());
+
+        if (statusAccountNumberDto.status().equalsIgnoreCase("failed")) {
+            balance.setBalance(balance.getBalance() + statusAccountNumberDto.amount());
+            balance.setBlockedBalance(balance.getBlockedBalance() - statusAccountNumberDto.amount());
+        }
+
+        balanceService.saveBalance(balance);
     }
 }
