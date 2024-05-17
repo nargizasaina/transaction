@@ -28,6 +28,6 @@ public class PinServiceImpl implements PinService {
             throw new IncorrectPin();
 
         BalanceStatusDto balanceStatusDto = new BalanceStatusDto(cardAccount.getBalance().getBalance(), cardAccount.isActive());
-        return null;
+        return balanceStatusDto;
     }
 }
